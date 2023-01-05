@@ -1,5 +1,5 @@
-# dvc-project-template
-DVC project template
+# NER-Based-Project
+NER-Based-Project
 
 ## STEPS -
 
