@@ -3,7 +3,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 import logging
-from src.utils import read_yaml, create_directories
+from src.NER_utils import read_yaml, create_directories
 import random
 
 STAGE = "Featurization" ## <<< change stage name 
