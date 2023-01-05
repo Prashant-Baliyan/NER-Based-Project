@@ -1,8 +1,9 @@
 # add stages here 
-# stages:
-#   stage_name:
-#     cmd: python src/stage_01______.py
-#     deps:
-#     - src/stage_01______.py
-#     outs:
-#     - output_data_of_file_path
+stages:
+  Data Ingestion:
+    cmd: python src/NER_data_ingestion/data_ingestion.py
+    deps:
+    - src/NER_data_ingestion/data_ingestion.py
+    - src/NER_utils
+    outs:
+    - artifacts/cache_dir

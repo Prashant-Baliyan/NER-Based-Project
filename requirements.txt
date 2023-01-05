@@ -8,5 +8,6 @@ mkdocs-material
 transformers[sentencepiece]
 folium==0.2.1
 tensorflow
+datasets
 ### local packages -
 -e . # << uncomment this to install from setup.py
