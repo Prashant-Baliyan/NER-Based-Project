@@ -1,5 +1,5 @@
-# NER-Based-Project
-NER-Based-Project
+# NER-TransformerBased-Project
+NER-TransformerBased-Project
 
 ## STEPS -
 
