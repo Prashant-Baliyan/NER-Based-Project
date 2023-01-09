@@ -3,6 +3,7 @@ site_name: NER-TransformerBased-Project
 # defeine TOC or order of website-
 nav:
   - Home: index.md
+  - Data-injestion: Data_injestion.md
 
 site_author: Prashant Baliyan
 site_description: >-
