@@ -33,6 +33,10 @@ To run inferencing
 ```python
 python app.py
 ```
+
+To launch swagger ui
+```python
+http://localhost:8085/docs
 ```
 ## 🧑‍💻 Tech Used
 1. Natural Language processing
