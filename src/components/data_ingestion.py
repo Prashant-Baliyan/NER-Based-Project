@@ -1,8 +1,9 @@
 import argparse
 import os
 import logging
-from src.NER_utils import read_yaml, create_directories
 from datasets import load_dataset
+from src.entity.config_entity import DataIngestionConfig
+from src.config.configuration import Configuration
 
 STAGE = "Data Ingestion stage" ## <<< change stage name 
 
@@ -14,35 +15,35 @@ logging.basicConfig(
     )
 
 class DataIngestion:
-    def __init__(self, config):
-        self.config = config
-        self.dataset_name = config["dataset"]["name"]
-        self.subset = config["dataset"]["subset"]
-        self.cache_dir = os.path.join(
-            config["artifacts"]["artifacts_dir"],
-            config["artifacts"]["cache_dir"]
-            )
+    def __init__(self, data_ingestion_config: DataIngestionConfig):
+        logging.info(" Data Ingestion Log Started ")
+        self.data_ingestion_config = data_ingestion_config
 
     def get_data(self):
-        load_dataset(self.dataset_name, self.subset, cache_dir=self.cache_dir )
-        logging.info(f"dataset downloaded at: {self.cache_dir}")
+            """
+            This is class is responsible for data collection from official hugging face library.
+            Cross-lingual Transfer Evaluation of Multilingual Encoders 
+            (XTREME) benchmark called WikiANN or PAN-X.
+            
+            Returns: Dict of train test validation data 
+            """
+            logging.info(f"Loading Data from Hugging face ")
+            pan_en_data = load_dataset(self.data_ingestion_config.dataset_name,
+                                       name=self.data_ingestion_config.subset_name)
+            logging.info(f"Dataset Info : {pan_en_data}")
 
-def main(config_path):
-    ## read config files
-    config = read_yaml(config_path)
-    data_ingestion = DataIngestion(config)
-    data_ingestion.get_data()
+            return pan_en_data
 
+def main():
+    project_config = Configuration()
+    ingestion = DataIngestion(project_config.get_data_ingestion_config())
+    print(ingestion)
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser()
-    args.add_argument("--config", "-c", default="configs/config.yaml")
-    parsed_args = args.parse_args()
-
     try:
         logging.info("\n********************")
         logging.info(f">>>>> stage {STAGE} started <<<<<")
-        main(config_path=parsed_args.config)
+        main()
         logging.info(f">>>>> stage {STAGE} completed!<<<<<\n")
     except Exception as e:
         logging.exception(e)
