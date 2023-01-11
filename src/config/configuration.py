@@ -54,6 +54,24 @@ class Configuration:
             )
 
             return data_validation_config
+            
+    def get_data_preprocessing_config(self) -> DataPreprocessingConfig:
+            model_name = self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME]
+            tags = self.config[DATA_PREPROCESSING_KEY][NER_TAGS_KEY]
+
+            index2tag = {idx: tag for idx, tag in enumerate(tags)}
+            tag2index = {idx: tag for idx, tag in enumerate(tags)}
+
+            tokenizer = AutoTokenizer.from_pretrained(self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME])
+
+            data_preprocessing_config = DataPreprocessingConfig(
+                model_name=model_name,
+                tags=tags,
+                index2tag=index2tag,
+                tag2index=tag2index,
+                tokenizer=tokenizer
+            )
+            return data_preprocessing_config
 def main():
     Configuration = Configuration()
     Configuration.data_validation_config()

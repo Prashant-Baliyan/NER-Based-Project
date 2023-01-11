@@ -1,7 +1,7 @@
 from src.config.configuration import Configuration
 from src.components.data_ingestion import DataIngestion
 from src.components.data_validation import DataValidation
-# from src.components.data_prepration import DataPreprocessing
+from src.components.data_preparation import DataPreprocessing
 # from src.components.model_training import TrainTokenClassifier
 from typing import Any, Dict, List, ClassVar
 import logging
@@ -31,14 +31,21 @@ class TrainPipeline:
             checks = validation.drive_checks()
             return checks
 
+    def run_data_preparation(self, data) -> Dict:
+            logging.info(" Running Data Preparation pipeline ")
+            data_preprocessng = DataPreprocessing(data_preprocessing_config=self.config.get_data_preprocessing_config(),
+                                                  data=data)
+            data = data_preprocessng.prepare_data_for_fine_tuning()
+            return data
+
     def run_pipeline(self):
         data = self.run_data_ingestion()
         checks = self.run_data_validation(data=data)
         if sum(checks[0]) == 3:
             logging.info("Checks Completed")
-            #processed_data = self.run_data_preparation(data=data)
-            #logging.info(f"Preprocessed Data {processed_data}")
-        #     self.run_model_training(data=processed_data)
+            processed_data = self.run_data_preparation(data=data)
+            logging.info(f"Preprocessed Data {processed_data}")
+            #self.run_model_training(data=processed_data)
         else:
             logging.error("Checks Failed")    
 
