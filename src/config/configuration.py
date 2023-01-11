@@ -34,9 +34,29 @@ class Configuration:
             )
             return data_ingestion_config
 
+    def get_data_validation_config(self) -> DataValidationConfig:
+
+            # Load data from the disk location artifacts store
+            # os.path.join(from_root(),-- path to the data_store)
+
+            split = self.config[DATA_VALIDATION_KEY][DATA_SPLIT]
+            columns = self.config[DATA_VALIDATION_KEY][COLUMNS_CHECK]
+
+            null_value_check = self.config[DATA_VALIDATION_KEY][TYPE_CHECK]
+            type_check = self.config[DATA_VALIDATION_KEY][NULL_CHECK]
+
+            data_validation_config = DataValidationConfig(
+                dataset=None,
+                data_split=split,
+                columns_check=columns,
+                type_check=type_check,
+                null_check=null_value_check
+            )
+
+            return data_validation_config
 def main():
     Configuration = Configuration()
-    Configuration.get_data_ingestion_config()
+    Configuration.data_validation_config()
 
 if __name__ == '__main__':
     try:
