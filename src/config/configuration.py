@@ -21,6 +21,7 @@ class Configuration:
             self.config = read_config(file_name=CONFIG_FILE_NAME)
 
     def get_data_ingestion_config(self) -> DataIngestionConfig:
+        try:
             dataset_name = self.config[DATA_INGESTION_KEY][DATASET_NAME]
             subset_name = self.config[DATA_INGESTION_KEY][SUBSET_NAME]
 
@@ -33,8 +34,12 @@ class Configuration:
                 data_path=data_store
             )
             return data_ingestion_config
+        except Exception as e:
+            logging.exception(e)
+            raise e
 
     def get_data_validation_config(self) -> DataValidationConfig:
+        try:
 
             # Load data from the disk location artifacts store
             # os.path.join(from_root(),-- path to the data_store)
@@ -54,8 +59,12 @@ class Configuration:
             )
 
             return data_validation_config
+        except Exception as e:
+            logging.exception(e)
+            raise e
             
     def get_data_preprocessing_config(self) -> DataPreprocessingConfig:
+        try:
             model_name = self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME]
             tags = self.config[DATA_PREPROCESSING_KEY][NER_TAGS_KEY]
 
@@ -72,16 +81,79 @@ class Configuration:
                 tokenizer=tokenizer
             )
             return data_preprocessing_config
-def main():
-    Configuration = Configuration()
-    Configuration.data_validation_config()
+        except Exception as e:
+            logging.exception(e)
+            raise e
 
-if __name__ == '__main__':
-    try:
-        logging.info("\n********************")
-        logging.info(f">>>>> data_ingestion_config entity extraction started <<<<<")
-        main()
-        logging.info(f">>>>> data_ingestion_config entity extraction completed!<<<<<\n")
-    except Exception as e:
-        logging.exception(e)
-        raise e
+    def get_model_train_pipeline_config(self) -> ModelTrainConfig:
+        try:
+            model_name = self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME]
+            tokenizer = AutoTokenizer.from_pretrained(self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME])
+
+            tags = self.config[DATA_PREPROCESSING_KEY][NER_TAGS_KEY]
+
+            index2tag = {idx: tag for idx, tag in enumerate(tags)}
+            tag2index = {tag: idx for idx, tag in enumerate(tags)}
+
+            xlmr_config = AutoConfig.from_pretrained(self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME],
+                                                     num_labels=self.config[BASE_MODEL_CONFIG][NUM_CLASSES],
+                                                     id2label=index2tag,
+                                                     label2id=tag2index)
+
+            epochs = self.config[BASE_MODEL_CONFIG][NUM_EPOCHS]
+            batch_size = self.config[BASE_MODEL_CONFIG][BATCH_SIZE]
+            save_steps = self.config[BASE_MODEL_CONFIG][SAVE_STEPS]
+
+            output_dir = os.path.join(from_root(), ARTIFACTS_KEY, MODEL_WEIGHT_KEY)
+
+            model_train_config = ModelTrainConfig(
+                model_name=model_name,
+                index2tag=index2tag,
+                tag2index=tag2index,
+                tokenizer=tokenizer,
+                xlmr_config=xlmr_config,
+                epochs=epochs,
+                batch_size=batch_size,
+                save_steps=save_steps,
+                output_dir=output_dir
+            )
+
+            return model_train_config
+        except Exception as e:
+            logging.exception(e)
+            raise e
+
+    def get_model_predict_pipeline_config(self) -> PredictPipelineConfig:
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(self.config[BASE_MODEL_CONFIG][BASE_MODEL_NAME])
+            truncation = self.config[PREDICT_MODEL_CONFIG][TRUNCATION]
+            is_split_into_words = self.config[PREDICT_MODEL_CONFIG][IS_SPLIT_INTO_WORDS]
+            output_dir = os.path.join(from_root(), ARTIFACTS_KEY, MODEL_WEIGHT_KEY)
+            tags = self.config[DATA_PREPROCESSING_KEY][NER_TAGS_KEY]
+
+            index2tag = {idx: tag for idx, tag in enumerate(tags)}
+            tag2index = {idx: tag for idx, tag in enumerate(tags)}
+            predict_pipeline_config = PredictPipelineConfig(tokenizer=tokenizer,
+                                                            truncation=truncation,
+                                                            is_split_into_words=is_split_into_words,
+                                                            output_dir=output_dir,
+                                                            index2tag=index2tag,
+                                                            tag2index=tag2index)
+            return predict_pipeline_config
+        except Exception as e:
+            logging.exception(e)
+            raise e
+            
+# def main():
+#     Configuration = Configuration()
+#     Configuration.get_model_predict_pipeline_config()
+
+# if __name__ == '__main__':
+#     try:
+#         logging.info("\n********************")
+#         logging.info(f">>>>> data_ingestion_config entity extraction started <<<<<")
+#         main()
+#         logging.info(f">>>>> data_ingestion_config entity extraction completed!<<<<<\n")
+#     except Exception as e:
+#         logging.exception(e)
+#         raise e
